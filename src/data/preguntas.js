@@ -1,4 +1,4 @@
-const MENSAJE_BIENVENIDA = `Bienvenido, en este chat descubrirá cómo capturar datos desde WhatsApp y convertirlos en información valiosa para tomar decisiones, iniciemos. Esta es la línea de transformación digital del programa fábricas de productividad.\n\n¿Desea participar en la encuesta?`;
+const MENSAJE_BIENVENIDA = `Bienvenido, en este chat descubrirá cómo capturar datos desde WhatsApp y convertirlos en información valiosa para tomar decisiones, iniciemos. Esta es la línea de transformación digital del programa fábricas de productividad.\n\nSus respuestas son estrictamente confidenciales, conforme a la Ley 1581 de 2012 de Protección de Datos Personales.\n\n¿Desea participar en la encuesta?`;
 
 const MENSAJE_RECHAZO = `Agradecemos su tiempo.\n\nSi en algún momento desea participar, con gusto lo atenderemos.\n\nQue tenga un excelente día.`;
 

@@ -46,21 +46,7 @@ router.get("/", async (req, res) => {
        FROM respuestas WHERE numero_pregunta = 2 AND respuesta_texto IS NOT NULL`
     );
 
-    const [encuestados] = await pool.execute(
-      `SELECT e.id, e.nombre, e.empresa, e.fecha,
-        (SELECT r.respuesta_numerica FROM respuestas r WHERE r.encuestado_id = e.id AND r.numero_pregunta = 1 LIMIT 1) as sector_num,
-        (SELECT r.respuesta_texto FROM respuestas r WHERE r.encuestado_id = e.id AND r.numero_pregunta = 2 LIMIT 1) as empleados
-       FROM encuestados e ORDER BY e.fecha DESC`
-    );
-
-    const sectores = OPCIONES[1];
-    const lista = encuestados.map((e) => ({
-      ...e,
-      sector: e.sector_num ? sectores[e.sector_num - 1] : "—",
-      fecha_fmt: new Date(e.fecha).toLocaleString("es-CO", { dateStyle: "short", timeStyle: "short" }),
-    }));
-
-    res.render("dashboard/index", { total, ultima_fecha, graficas, empStats, lista });
+    res.render("dashboard/index", { total, ultima_fecha, graficas, empStats });
   } catch (err) {
     console.error("❌ Dashboard error:", err.message);
     res.status(500).send("Error cargando el dashboard");

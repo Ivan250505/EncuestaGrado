@@ -8,19 +8,18 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
   <style>
     body { background: #f0f2f5; font-family: 'Segoe UI', sans-serif; }
-    .navbar-brand { font-weight: 700; letter-spacing: .5px; }
-    .stat-card { border: none; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,.08); }
-    .chart-card { border: none; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,.08); }
-    .chart-card .card-header { border-radius: 16px 16px 0 0 !important; font-weight: 600; font-size: .9rem; }
-    .table th { font-size: .8rem; text-transform: uppercase; letter-spacing: .5px; color: #6c757d; }
-    canvas { max-height: 260px; }
+    .card { border: none; border-radius: 16px; box-shadow: 0 2px 14px rgba(0,0,0,.07); }
+    .card-header { border-radius: 16px 16px 0 0 !important; font-weight: 600; font-size: .88rem; letter-spacing: .3px; }
+    .kpi-val { font-size: 2.4rem; font-weight: 700; line-height: 1; }
+    .kpi-label { font-size: .8rem; color: #6c757d; margin-top: 4px; }
+    canvas { max-height: 270px; }
   </style>
 </head>
 <body>
 
 <nav class="navbar navbar-dark bg-success px-4 mb-4">
-  <span class="navbar-brand"><i class="bi bi-bar-chart-fill me-2"></i>Fábricas de Productividad — Dashboard</span>
-  <span class="text-white-50 small">Línea de Transformación Digital</span>
+  <span class="navbar-brand fw-bold"><i class="bi bi-bar-chart-fill me-2"></i>Fábricas de Productividad — Dashboard</span>
+  <span class="text-white-50 small d-none d-md-inline">Línea de Transformación Digital</span>
 </nav>
 
 <div class="container-fluid px-4">
@@ -28,188 +27,213 @@
   <!-- KPIs -->
   <div class="row g-3 mb-4">
     <div class="col-6 col-md-3">
-      <div class="card stat-card text-center py-3">
-        <div class="fs-1 fw-bold text-success"><%= total %></div>
-        <div class="text-muted small">Encuestas completadas</div>
+      <div class="card text-center py-3">
+        <div class="kpi-val text-success"><%= total %></div>
+        <div class="kpi-label">Encuestas completadas</div>
       </div>
     </div>
     <div class="col-6 col-md-3">
-      <div class="card stat-card text-center py-3">
-        <div class="fs-3 fw-bold text-primary"><%= empStats.promedio ?? '—' %></div>
-        <div class="text-muted small">Promedio de empleados</div>
+      <div class="card text-center py-3">
+        <div class="kpi-val text-primary"><%= empStats.promedio ?? '—' %></div>
+        <div class="kpi-label">Promedio de empleados</div>
       </div>
     </div>
     <div class="col-6 col-md-3">
-      <div class="card stat-card text-center py-3">
-        <div class="fs-3 fw-bold text-warning"><%= empStats.minimo ?? '—' %> – <%= empStats.maximo ?? '—' %></div>
-        <div class="text-muted small">Rango de empleados</div>
+      <div class="card text-center py-3">
+        <div class="kpi-val text-warning" style="font-size:1.6rem">
+          <%= empStats.minimo ?? '—' %> – <%= empStats.maximo ?? '—' %>
+        </div>
+        <div class="kpi-label">Rango de empleados</div>
       </div>
     </div>
     <div class="col-6 col-md-3">
-      <div class="card stat-card text-center py-3">
-        <div class="fs-5 fw-bold text-secondary">
+      <div class="card text-center py-3">
+        <div class="kpi-val text-secondary" style="font-size:1.4rem">
           <%= ultima_fecha ? new Date(ultima_fecha).toLocaleDateString('es-CO') : '—' %>
         </div>
-        <div class="text-muted small">Última respuesta</div>
+        <div class="kpi-label">Última respuesta</div>
       </div>
     </div>
   </div>
 
-  <!-- Gráficas fila 1: P1 Sector + P3 Sistema -->
+  <!-- Fila 1: P1 Torta + P8 Dona -->
   <div class="row g-3 mb-3">
     <div class="col-md-6">
-      <div class="card chart-card">
+      <div class="card h-100">
         <div class="card-header bg-success text-white">P1 — Sector económico</div>
-        <div class="card-body"><canvas id="c1"></canvas></div>
+        <div class="card-body d-flex justify-content-center align-items-center">
+          <canvas id="c1" style="max-height:250px; max-width:320px;"></canvas>
+        </div>
       </div>
     </div>
     <div class="col-md-6">
-      <div class="card chart-card">
+      <div class="card h-100">
+        <div class="card-header bg-danger text-white">P8 — ¿Ha participado en Fábricas de Productividad?</div>
+        <div class="card-body d-flex flex-column align-items-center justify-content-center gap-3">
+          <canvas id="c8" style="max-height:200px; max-width:200px;"></canvas>
+          <div class="d-flex gap-4">
+            <div class="text-center">
+              <div class="fs-3 fw-bold text-success"><%= graficas[8].data[0] %></div>
+              <div class="text-muted small">Sí han participado</div>
+            </div>
+            <div class="text-center">
+              <div class="fs-3 fw-bold text-danger"><%= graficas[8].data[1] %></div>
+              <div class="text-muted small">No han participado</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fila 2: P3 Barras horizontal + P7 Barras horizontal -->
+  <div class="row g-3 mb-3">
+    <div class="col-md-6">
+      <div class="card">
         <div class="card-header bg-primary text-white">P3 — Sistema actual de gestión</div>
         <div class="card-body"><canvas id="c3"></canvas></div>
       </div>
     </div>
-  </div>
-
-  <!-- Gráficas fila 2: P4 Acceso + P5 Licencias -->
-  <div class="row g-3 mb-3">
     <div class="col-md-6">
-      <div class="card chart-card">
-        <div class="card-header bg-info text-white">P4 — Acceso remoto a la información</div>
-        <div class="card-body"><canvas id="c4"></canvas></div>
-      </div>
-    </div>
-    <div class="col-md-6">
-      <div class="card chart-card">
-        <div class="card-header bg-warning text-dark">P5 — Gasto en licencias de software</div>
-        <div class="card-body"><canvas id="c5"></canvas></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Gráficas fila 3: P6 Cotizó + P7 IA -->
-  <div class="row g-3 mb-3">
-    <div class="col-md-6">
-      <div class="card chart-card">
-        <div class="card-header bg-secondary text-white">P6 — Búsqueda de servicios tecnológicos</div>
-        <div class="card-body"><canvas id="c6"></canvas></div>
-      </div>
-    </div>
-    <div class="col-md-6">
-      <div class="card chart-card">
+      <div class="card">
         <div class="card-header bg-dark text-white">P7 — Herramienta de IA más usada</div>
         <div class="card-body"><canvas id="c7"></canvas></div>
       </div>
     </div>
   </div>
 
-  <!-- P8 Fábricas (pie) -->
-  <div class="row g-3 mb-4">
-    <div class="col-md-4">
-      <div class="card chart-card">
-        <div class="card-header bg-danger text-white">P8 — ¿Ha participado en Fábricas de Productividad?</div>
-        <div class="card-body d-flex justify-content-center"><canvas id="c8" style="max-height:220px; max-width:220px;"></canvas></div>
-      </div>
-    </div>
-    <div class="col-md-8">
-      <div class="card chart-card h-100">
-        <div class="card-header bg-light text-dark">Resumen de participación en Fábricas</div>
-        <div class="card-body d-flex align-items-center justify-content-around">
-          <div class="text-center">
-            <div class="fs-1 fw-bold text-success"><%= graficas[8].data[0] %></div>
-            <div class="text-muted">Han participado</div>
-          </div>
-          <div class="text-center">
-            <div class="fs-1 fw-bold text-danger"><%= graficas[8].data[1] %></div>
-            <div class="text-muted">No han participado</div>
-          </div>
-          <div class="text-center">
-            <div class="fs-1 fw-bold text-secondary"><%= total %></div>
-            <div class="text-muted">Total encuestados</div>
-          </div>
+  <!-- Fila 3: P4 Dona + P6 Barras horizontal -->
+  <div class="row g-3 mb-3">
+    <div class="col-md-5">
+      <div class="card h-100">
+        <div class="card-header bg-info text-white">P4 — Acceso remoto a la información</div>
+        <div class="card-body d-flex justify-content-center align-items-center">
+          <canvas id="c4" style="max-height:240px; max-width:300px;"></canvas>
         </div>
       </div>
     </div>
-  </div>
-
-  <!-- Tabla de encuestados -->
-  <div class="card chart-card mb-5">
-    <div class="card-header bg-light text-dark fw-bold">Listado de participantes</div>
-    <div class="card-body p-0">
-      <div class="table-responsive">
-        <table class="table table-hover table-striped mb-0">
-          <thead class="table-light">
-            <tr>
-              <th>#</th>
-              <th>Nombre</th>
-              <th>Empresa</th>
-              <th>Sector</th>
-              <th>Empleados</th>
-              <th>Fecha</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% if (lista.length === 0) { %>
-            <tr><td colspan="6" class="text-center text-muted py-4">Sin registros aún</td></tr>
-            <% } %>
-            <% lista.forEach((e, i) => { %>
-            <tr>
-              <td class="text-muted"><%= i + 1 %></td>
-              <td><%= e.nombre || '—' %></td>
-              <td><strong><%= e.empresa || '—' %></strong></td>
-              <td><span class="badge bg-success"><%= e.sector %></span></td>
-              <td><%= e.empleados || '—' %></td>
-              <td class="text-muted small"><%= e.fecha_fmt %></td>
-            </tr>
-            <% }) %>
-          </tbody>
-        </table>
+    <div class="col-md-7">
+      <div class="card h-100">
+        <div class="card-header bg-secondary text-white">P6 — Búsqueda de servicios tecnológicos</div>
+        <div class="card-body"><canvas id="c6"></canvas></div>
       </div>
     </div>
   </div>
 
-</div><!-- /container -->
+  <!-- Fila 4: P5 Histograma de frecuencias -->
+  <div class="row g-3 mb-5">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header bg-warning text-dark">P5 — Frecuencia de gasto en licencias de software</div>
+        <div class="card-body"><canvas id="c5" style="max-height:220px;"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <script>
-  const COLORS = [
-    '#2ecc71','#3498db','#e67e22','#e74c3c','#9b59b6','#1abc9c','#f39c12','#34495e'
-  ];
-
-  function barChart(id, labels, data, color) {
-    new Chart(document.getElementById(id), {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [{ data, backgroundColor: color || COLORS, borderRadius: 6, borderSkipped: false }]
-      },
-      options: {
-        responsive: true,
-        plugins: { legend: { display: false } },
-        scales: {
-          y: { beginAtZero: true, ticks: { stepSize: 1 } },
-          x: { ticks: { font: { size: 11 } } }
-        }
-      }
-    });
-  }
-
   const g = <%- JSON.stringify(graficas) %>;
 
-  barChart('c1', g[1].labels, g[1].data);
-  barChart('c3', g[3].labels, g[3].data, '#3498db');
-  barChart('c4', g[4].labels, g[4].data, '#1abc9c');
-  barChart('c5', g[5].labels, g[5].data, '#f39c12');
-  barChart('c6', g[6].labels, g[6].data, '#95a5a6');
-  barChart('c7', g[7].labels, g[7].data, '#2c3e50');
+  const PALETTE = ['#27ae60','#2980b9','#e67e22','#c0392b','#8e44ad','#16a085','#f39c12','#2c3e50'];
 
+  // P1 — Torta
+  new Chart(document.getElementById('c1'), {
+    type: 'pie',
+    data: {
+      labels: g[1].labels,
+      datasets: [{ data: g[1].data, backgroundColor: PALETTE, borderWidth: 2 }]
+    },
+    options: { responsive: true, plugins: { legend: { position: 'right', labels: { font: { size: 11 } } } } }
+  });
+
+  // P3 — Barras horizontal
+  new Chart(document.getElementById('c3'), {
+    type: 'bar',
+    data: {
+      labels: g[3].labels,
+      datasets: [{ data: g[3].data, backgroundColor: '#2980b9', borderRadius: 6 }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } }
+    }
+  });
+
+  // P4 — Dona
+  new Chart(document.getElementById('c4'), {
+    type: 'doughnut',
+    data: {
+      labels: g[4].labels,
+      datasets: [{ data: g[4].data, backgroundColor: ['#1abc9c','#e74c3c','#f39c12','#95a5a6'], borderWidth: 2 }]
+    },
+    options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } } }
+  });
+
+  // P5 — Histograma de frecuencias (barras con degradado de color por valor)
+  new Chart(document.getElementById('c5'), {
+    type: 'bar',
+    data: {
+      labels: g[5].labels,
+      datasets: [{
+        label: 'Empresas',
+        data: g[5].data,
+        backgroundColor: ['#2ecc71','#3498db','#f39c12','#e67e22','#e74c3c'],
+        borderRadius: 8,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, ticks: { stepSize: 1 }, title: { display: true, text: 'N° de empresas' } },
+        x: { title: { display: true, text: 'Frecuencia de gasto' } }
+      }
+    }
+  });
+
+  // P6 — Barras horizontal
+  new Chart(document.getElementById('c6'), {
+    type: 'bar',
+    data: {
+      labels: g[6].labels,
+      datasets: [{ data: g[6].data, backgroundColor: '#7f8c8d', borderRadius: 6 }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } }
+    }
+  });
+
+  // P7 — Barras horizontal con paleta
+  new Chart(document.getElementById('c7'), {
+    type: 'bar',
+    data: {
+      labels: g[7].labels,
+      datasets: [{ data: g[7].data, backgroundColor: PALETTE, borderRadius: 6 }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } }
+    }
+  });
+
+  // P8 — Dona
   new Chart(document.getElementById('c8'), {
     type: 'doughnut',
     data: {
       labels: g[8].labels,
-      datasets: [{ data: g[8].data, backgroundColor: ['#2ecc71','#e74c3c'], borderWidth: 2 }]
+      datasets: [{ data: g[8].data, backgroundColor: ['#27ae60','#e74c3c'], borderWidth: 3 }]
     },
-    options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+    options: { responsive: true, plugins: { legend: { display: false } } }
   });
 </script>
 </body>
