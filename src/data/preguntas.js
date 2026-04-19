@@ -1,4 +1,4 @@
-const MENSAJE_BIENVENIDA = `Bienvenido/a.\n\nEsta encuesta hace parte de una investigación académica para formular un plan de negocio orientado a apoyar la modernización tecnológica de las empresas de Bucaramanga.\n\nSus respuestas son estrictamente confidenciales, conforme a la *Ley 1581 de 2012* de Protección de Datos Personales.\n\n¿Desea participar en la encuesta?\n\n1️⃣ Sí, deseo continuar\n2️⃣ No, en este momento no`;
+const MENSAJE_BIENVENIDA = `Bienvenido/a.\n\nEsta encuesta hace parte de una investigación académica para formular un plan de negocio orientado a apoyar la modernización tecnológica de las empresas de Bucaramanga.\n\nSus respuestas son estrictamente confidenciales, conforme a la *Ley 1581 de 2012* de Protección de Datos Personales.\n\n¿Desea participar en la encuesta?`;
 
 const MENSAJE_RECHAZO = `Agradecemos su tiempo.\n\nSi en algún momento desea participar, con gusto lo atenderemos.\n\nQue tenga un excelente día.`;
 
