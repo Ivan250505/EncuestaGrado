@@ -42,8 +42,8 @@ async function enviarBotonesBienvenida(telefono) {
       body: { text: MENSAJE_BIENVENIDA },
       action: {
         buttons: [
-          { type: "reply", reply: { id: "SI", title: "Sí, deseo continuar" } },
-          { type: "reply", reply: { id: "NO", title: "No, en este momento no" } },
+          { type: "reply", reply: { id: "SI", title: "Sí, continuar" } },
+          { type: "reply", reply: { id: "NO", title: "No participar" } },
         ],
       },
     },
