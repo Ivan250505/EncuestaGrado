@@ -32,10 +32,18 @@ router.post("/webhook", async (req, res) => {
     if (!mensajes || mensajes.length === 0) return;
 
     const mensaje = mensajes[0];
-    if (mensaje.type !== "text") return;
 
-    const telefono = mensaje.from;
-    const texto = mensaje.text.body;
+    let telefono, texto;
+
+    if (mensaje.type === "text") {
+      telefono = mensaje.from;
+      texto = mensaje.text.body;
+    } else if (mensaje.type === "interactive" && mensaje.interactive?.type === "button_reply") {
+      telefono = mensaje.from;
+      texto = mensaje.interactive.button_reply.id; // "SI" o "NO"
+    } else {
+      return;
+    }
 
     console.log(`📩 Mensaje de ${telefono}: ${texto}`);
     await procesarMensaje(telefono, texto);

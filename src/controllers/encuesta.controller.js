@@ -1,6 +1,6 @@
 const { MENSAJE_BIENVENIDA, MENSAJE_RECHAZO, ENCABEZADO, PREGUNTAS } = require("../data/preguntas");
 const { obtenerSesion, guardarSesion } = require("../store/sesiones");
-const { enviarMensaje } = require("../services/whatsapp");
+const { enviarMensaje, enviarBotonesBienvenida } = require("../services/whatsapp");
 const { guardarRespuesta } = require("../services/storage");
 
 async function procesarMensaje(telefono, textoRecibido) {
@@ -10,13 +10,13 @@ async function procesarMensaje(telefono, textoRecibido) {
   if (sesion.completado) {
     const sesionNueva = {
       etapa: "bienvenida",
-      paso: 0,
+      paso: 1,
       datos: {},
       respuestas: [],
       completado: false,
     };
     await guardarSesion(telefono, sesionNueva);
-    await enviarMensaje(telefono, MENSAJE_BIENVENIDA);
+    await enviarBotonesBienvenida(telefono);
     return;
   }
 
@@ -33,11 +33,13 @@ async function procesarBienvenida(telefono, sesion, texto) {
   if (sesion.paso === 0) {
     sesion.paso = 1;
     await guardarSesion(telefono, sesion);
-    await enviarMensaje(telefono, MENSAJE_BIENVENIDA);
+    await enviarBotonesBienvenida(telefono);
     return;
   }
 
-  if (texto === "1" || texto.toLowerCase() === "si" || texto.toLowerCase() === "sí") {
+  const textoNorm = texto.toLowerCase().trim();
+
+  if (texto === "1" || texto === "SI" || textoNorm === "si" || textoNorm === "sí") {
     sesion.etapa = "encabezado";
     sesion.paso = 0;
     await guardarSesion(telefono, sesion);
@@ -45,14 +47,14 @@ async function procesarBienvenida(telefono, sesion, texto) {
     return;
   }
 
-  if (texto === "2" || texto.toLowerCase() === "no") {
+  if (texto === "2" || texto === "NO" || textoNorm === "no") {
     sesion.completado = true;
     await guardarSesion(telefono, sesion);
     await enviarMensaje(telefono, MENSAJE_RECHAZO);
     return;
   }
 
-  await enviarMensaje(telefono, "Por favor indique su respuesta escribiendo *1* para continuar o *2* para declinar.");
+  await enviarBotonesBienvenida(telefono);
 }
 
 async function procesarEncabezado(telefono, sesion, texto) {
