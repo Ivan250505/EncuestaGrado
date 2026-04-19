@@ -50,4 +50,22 @@ async function enviarBotonesBienvenida(telefono) {
   });
 }
 
-module.exports = { enviarMensaje, enviarBotonesBienvenida };
+async function enviarBotonesYesNo(telefono, textoPregunta) {
+  await enviar({
+    messaging_product: "whatsapp",
+    to: telefono,
+    type: "interactive",
+    interactive: {
+      type: "button",
+      body: { text: textoPregunta },
+      action: {
+        buttons: [
+          { type: "reply", reply: { id: "1", title: "Sí" } },
+          { type: "reply", reply: { id: "2", title: "No" } },
+        ],
+      },
+    },
+  });
+}
+
+module.exports = { enviarMensaje, enviarBotonesBienvenida, enviarBotonesYesNo };

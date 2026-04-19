@@ -17,8 +17,6 @@ async function inicializarTablas() {
       telefono VARCHAR(30) NOT NULL,
       nombre VARCHAR(150),
       empresa VARCHAR(150),
-      sector VARCHAR(100),
-      empleados VARCHAR(100),
       fecha DATETIME NOT NULL
     )
   `);
@@ -28,7 +26,8 @@ async function inicializarTablas() {
       id INT AUTO_INCREMENT PRIMARY KEY,
       encuestado_id INT NOT NULL,
       numero_pregunta TINYINT NOT NULL,
-      texto_respuesta VARCHAR(255) NOT NULL,
+      respuesta_numerica SMALLINT NULL,
+      respuesta_texto TEXT NULL,
       FOREIGN KEY (encuestado_id) REFERENCES encuestados(id)
     )
   `);

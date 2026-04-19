@@ -1,7 +1,15 @@
 const { MENSAJE_BIENVENIDA, MENSAJE_RECHAZO, ENCABEZADO, PREGUNTAS } = require("../data/preguntas");
 const { obtenerSesion, guardarSesion } = require("../store/sesiones");
-const { enviarMensaje, enviarBotonesBienvenida } = require("../services/whatsapp");
+const { enviarMensaje, enviarBotonesBienvenida, enviarBotonesYesNo } = require("../services/whatsapp");
 const { guardarRespuesta } = require("../services/storage");
+
+async function enviarPregunta(telefono, pregunta) {
+  if (pregunta.tipo === "boton") {
+    await enviarBotonesYesNo(telefono, pregunta.texto);
+  } else {
+    await enviarMensaje(telefono, pregunta.texto);
+  }
+}
 
 async function procesarMensaje(telefono, textoRecibido) {
   const sesion = await obtenerSesion(telefono);
@@ -60,23 +68,11 @@ async function procesarBienvenida(telefono, sesion, texto) {
 async function procesarEncabezado(telefono, sesion, texto) {
   const campoActual = ENCABEZADO[sesion.paso];
 
-  if (campoActual.tipo === "texto_libre") {
-    if (!texto || texto.length < 2) {
-      await enviarMensaje(telefono, "Por favor ingresa una respuesta válida. 🙏");
-      return;
-    }
-    sesion.datos[campoActual.id] = texto;
-  } else if (campoActual.tipo === "opcion") {
-    const indice = parseInt(texto) - 1;
-    if (isNaN(indice) || indice < 0 || indice >= campoActual.opciones.length) {
-      await enviarMensaje(
-        telefono,
-        `Por favor responde con un número entre 1 y ${campoActual.opciones.length}. 🙏`
-      );
-      return;
-    }
-    sesion.datos[campoActual.id] = campoActual.opciones[indice];
+  if (!texto || texto.length < 2) {
+    await enviarMensaje(telefono, "Por favor ingrese una respuesta válida. 🙏");
+    return;
   }
+  sesion.datos[campoActual.id] = texto;
 
   sesion.paso++;
   await guardarSesion(telefono, sesion);
@@ -92,43 +88,71 @@ async function procesarEncabezado(telefono, sesion, texto) {
 
     await enviarMensaje(
       telefono,
-      `Gracias, ${sesion.datos.nombre}. A continuación encontrará *10 preguntas* relacionadas con el uso de tecnología en *${sesion.datos.empresa}*.\n\nPor favor responda cada una escribiendo el *número* de la opción que mejor describa su situación.`
+      `Gracias, ${sesion.datos.nombre}. A continuación encontrará *10 preguntas* relacionadas con el uso de tecnología en *${sesion.datos.empresa}*.\n\nPor favor responda cada una con el *número* de la opción que mejor describa su situación.`
     );
 
-    await enviarMensaje(telefono, PREGUNTAS[0].texto);
+    await enviarPregunta(telefono, PREGUNTAS[0]);
   }
 }
 
 async function procesarPregunta(telefono, sesion, texto) {
   const preguntaActual = PREGUNTAS[sesion.paso];
-  const indice = parseInt(texto) - 1;
+  let respuestaNumerica = null;
+  let respuestaTexto = null;
 
-  if (isNaN(indice) || indice < 0 || indice >= preguntaActual.opciones.length) {
-    await enviarMensaje(
-      telefono,
-      `Por favor responde con un número entre 1 y ${preguntaActual.opciones.length}. 🙏`
-    );
-    return;
+  if (preguntaActual.tipo === "opcion") {
+    const indice = parseInt(texto) - 1;
+    if (isNaN(indice) || indice < 0 || indice >= preguntaActual.opciones.length) {
+      await enviarMensaje(telefono, `Por favor responda con un número entre 1 y ${preguntaActual.opciones.length}. 🙏`);
+      return;
+    }
+    respuestaNumerica = indice + 1;
+
+  } else if (preguntaActual.tipo === "boton") {
+    if (texto === "1") {
+      respuestaNumerica = 1;
+    } else if (texto === "2") {
+      respuestaNumerica = 2;
+    } else {
+      await enviarBotonesYesNo(telefono, preguntaActual.texto);
+      return;
+    }
+
+  } else if (preguntaActual.tipo === "numero_libre") {
+    const num = parseInt(texto);
+    if (isNaN(num) || num <= 0) {
+      await enviarMensaje(telefono, "Por favor ingrese un número válido mayor a cero. 🙏");
+      return;
+    }
+    respuestaTexto = String(num);
+
+  } else if (preguntaActual.tipo === "texto_libre") {
+    if (!texto || texto.length < 2) {
+      await enviarMensaje(telefono, "Por favor ingrese una respuesta válida. 🙏");
+      return;
+    }
+    respuestaTexto = texto;
   }
 
   sesion.respuestas.push({
     pregunta_id: preguntaActual.id,
     numero: preguntaActual.numero,
-    respuesta: preguntaActual.opciones[indice],
+    respuesta_numerica: respuestaNumerica,
+    respuesta_texto: respuestaTexto,
   });
 
   sesion.paso++;
   await guardarSesion(telefono, sesion);
 
   if (sesion.paso < PREGUNTAS.length) {
-    await enviarMensaje(telefono, PREGUNTAS[sesion.paso].texto);
+    await enviarPregunta(telefono, PREGUNTAS[sesion.paso]);
   } else {
     sesion.completado = true;
     await guardarSesion(telefono, sesion);
     await guardarRespuesta(telefono, sesion);
     await enviarMensaje(
       telefono,
-      `✅ *¡Encuesta completada!*\n\n¡Muchas gracias, ${sesion.datos.nombre}! 🎉\n\nHemos registrado tus respuestas exitosamente.\n\nTu opinión es muy valiosa para nosotros y para el crecimiento tecnológico de las empresas en Bucaramanga. 💡\n\n¡Que tengas un excelente día! 🚀`
+      `✅ *¡Encuesta completada!*\n\nMuchas gracias, ${sesion.datos.nombre}. Hemos registrado sus respuestas exitosamente.\n\nSu opinión es muy valiosa para apoyar la modernización tecnológica de las empresas en Bucaramanga.\n\n¡Que tenga un excelente día!`
     );
   }
 }

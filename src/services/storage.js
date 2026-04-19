@@ -6,14 +6,12 @@ async function guardarRespuesta(telefono, sesion) {
     await conn.beginTransaction();
 
     const [result] = await conn.execute(
-      `INSERT INTO encuestados (telefono, nombre, empresa, sector, empleados, fecha)
-       VALUES (?, ?, ?, ?, ?, NOW())`,
+      `INSERT INTO encuestados (telefono, nombre, empresa, fecha)
+       VALUES (?, ?, ?, NOW())`,
       [
         telefono,
         sesion.datos.nombre || null,
         sesion.datos.empresa || null,
-        sesion.datos.sector || null,
-        sesion.datos.empleados || null,
       ]
     );
 
@@ -21,9 +19,9 @@ async function guardarRespuesta(telefono, sesion) {
 
     for (const r of sesion.respuestas) {
       await conn.execute(
-        `INSERT INTO respuestas (encuestado_id, numero_pregunta, texto_respuesta)
-         VALUES (?, ?, ?)`,
-        [encuestadoId, r.numero, r.respuesta]
+        `INSERT INTO respuestas (encuestado_id, numero_pregunta, respuesta_numerica, respuesta_texto)
+         VALUES (?, ?, ?, ?)`,
+        [encuestadoId, r.numero, r.respuesta_numerica ?? null, r.respuesta_texto ?? null]
       );
     }
 
@@ -49,12 +47,14 @@ async function obtenerTodasLasRespuestas() {
     datos_empresa: {
       nombre: e.nombre,
       empresa: e.empresa,
-      sector: e.sector,
-      empleados: e.empleados,
     },
     respuestas: respuestas
       .filter((r) => r.encuestado_id === e.id)
-      .map((r) => ({ numero: r.numero_pregunta, respuesta: r.texto_respuesta })),
+      .map((r) => ({
+        numero: r.numero_pregunta,
+        respuesta_numerica: r.respuesta_numerica,
+        respuesta_texto: r.respuesta_texto,
+      })),
   }));
 }
 
@@ -63,23 +63,27 @@ async function convertirACSV() {
   if (datos.length === 0) return "Sin datos aún";
 
   const cabecera = [
-    "Telefono","Fecha","Nombre","Empresa","Sector","Empleados",
-    "P1","P2","P3","P4","P5","P6","P7","P8","P9","P10",
+    "Telefono", "Fecha", "Nombre", "Empresa",
+    "P1_Sector", "P2_Empleados", "P3_SistemaActual", "P4_AccesoRemoto",
+    "P5_GastoLicencias", "P6_BuscoServicio", "P7_FormaPago",
+    "P8_IA", "P9_Fabricas",
   ].join(",");
 
   const filas = datos.map((r) => {
-    const preguntas = Array.from({ length: 10 }, (_, i) => {
+    const cols = Array.from({ length: 9 }, (_, i) => {
       const p = r.respuestas.find((x) => x.numero === i + 1);
-      return p ? `"${p.respuesta}"` : "";
+      if (!p) return "";
+      // P2 y P10: texto libre — P10 se omite del CSV (pregunta abierta)
+      if (p.respuesta_texto !== null) return `"${p.respuesta_texto}"`;
+      return p.respuesta_numerica ?? "";
     });
+
     return [
       r.telefono,
       r.fecha,
       `"${r.datos_empresa.nombre || ""}"`,
       `"${r.datos_empresa.empresa || ""}"`,
-      `"${r.datos_empresa.sector || ""}"`,
-      `"${r.datos_empresa.empleados || ""}"`,
-      ...preguntas,
+      ...cols,
     ].join(",");
   });
 
