@@ -88,7 +88,7 @@ async function procesarEncabezado(telefono, sesion, texto) {
 
     await enviarMensaje(
       telefono,
-      `Gracias, ${sesion.datos.nombre}. A continuación encontrará *10 preguntas* relacionadas con el uso de tecnología en *${sesion.datos.empresa}*.\n\nPor favor responda cada una con el *número* de la opción que mejor describa su situación.`
+      `Gracias, ${sesion.datos.nombre}. A continuación encontrará *9 preguntas* relacionadas con el uso de tecnología en *${sesion.datos.empresa}*.\n\nPor favor responda cada una con el *número* de la opción que mejor describa su situación.`
     );
 
     await enviarPregunta(telefono, PREGUNTAS[0]);
