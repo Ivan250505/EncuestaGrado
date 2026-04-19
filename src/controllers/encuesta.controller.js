@@ -1,4 +1,4 @@
-const { ENCABEZADO, PREGUNTAS } = require("../data/preguntas");
+const { MENSAJE_BIENVENIDA, MENSAJE_RECHAZO, ENCABEZADO, PREGUNTAS } = require("../data/preguntas");
 const { obtenerSesion, guardarSesion } = require("../store/sesiones");
 const { enviarMensaje } = require("../services/whatsapp");
 const { guardarRespuesta } = require("../services/storage");
@@ -8,15 +8,43 @@ async function procesarMensaje(telefono, textoRecibido) {
   const texto = textoRecibido.trim();
 
   if (sesion.completado) {
-    await enviarMensaje(telefono, "Ya completaste la encuesta. ¡Muchas gracias por tu participación! 😊");
+    await enviarMensaje(telefono, "Usted ya completó la encuesta anteriormente. Le agradecemos su valiosa participación.");
     return;
   }
 
-  if (sesion.etapa === "encabezado") {
+  if (sesion.etapa === "bienvenida") {
+    await procesarBienvenida(telefono, sesion, texto);
+  } else if (sesion.etapa === "encabezado") {
     await procesarEncabezado(telefono, sesion, texto);
   } else if (sesion.etapa === "preguntas") {
     await procesarPregunta(telefono, sesion, texto);
   }
+}
+
+async function procesarBienvenida(telefono, sesion, texto) {
+  if (sesion.paso === 0) {
+    sesion.paso = 1;
+    await guardarSesion(telefono, sesion);
+    await enviarMensaje(telefono, MENSAJE_BIENVENIDA);
+    return;
+  }
+
+  if (texto === "1" || texto.toLowerCase() === "si" || texto.toLowerCase() === "sí") {
+    sesion.etapa = "encabezado";
+    sesion.paso = 0;
+    await guardarSesion(telefono, sesion);
+    await enviarMensaje(telefono, ENCABEZADO[0].texto);
+    return;
+  }
+
+  if (texto === "2" || texto.toLowerCase() === "no") {
+    sesion.completado = true;
+    await guardarSesion(telefono, sesion);
+    await enviarMensaje(telefono, MENSAJE_RECHAZO);
+    return;
+  }
+
+  await enviarMensaje(telefono, "Por favor indique su respuesta escribiendo *1* para continuar o *2* para declinar.");
 }
 
 async function procesarEncabezado(telefono, sesion, texto) {
@@ -54,7 +82,7 @@ async function procesarEncabezado(telefono, sesion, texto) {
 
     await enviarMensaje(
       telefono,
-      `Perfecto, ${sesion.datos.nombre}! 🎯\n\nAhora comenzaremos con *10 preguntas* sobre la tecnología en tu empresa *${sesion.datos.empresa}*.\n\nResponde escribiendo el *número* de tu opción.`
+      `Gracias, ${sesion.datos.nombre}. A continuación encontrará *10 preguntas* relacionadas con el uso de tecnología en *${sesion.datos.empresa}*.\n\nPor favor responda cada una escribiendo el *número* de la opción que mejor describa su situación.`
     );
 
     await enviarMensaje(telefono, PREGUNTAS[0].texto);

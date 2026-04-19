@@ -18,7 +18,7 @@ async function obtenerSesion(telefono) {
   }
 
   const nuevaSesion = {
-    etapa: "encabezado",
+    etapa: "bienvenida",
     paso: 0,
     datos: {},
     respuestas: [],
