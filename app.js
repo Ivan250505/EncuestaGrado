@@ -1,5 +1,6 @@
 require("dotenv").config();
 const express = require("express");
+const { inicializarTablas } = require("./src/services/db");
 const webhookRouter = require("./src/routes/webhook");
 const resultadosRouter = require("./src/routes/resultados");
 
@@ -23,7 +24,14 @@ app.get("/", (req, res) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
-  console.log(`📡 Webhook listo en http://localhost:${PORT}/webhook`);
-});
+inicializarTablas()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
+      console.log(`📡 Webhook listo en http://localhost:${PORT}/webhook`);
+    });
+  })
+  .catch((err) => {
+    console.error("❌ Error conectando a MySQL:", err.message);
+    process.exit(1);
+  });

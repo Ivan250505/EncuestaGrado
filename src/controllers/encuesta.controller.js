@@ -4,7 +4,7 @@ const { enviarMensaje } = require("../services/whatsapp");
 const { guardarRespuesta } = require("../services/storage");
 
 async function procesarMensaje(telefono, textoRecibido) {
-  const sesion = obtenerSesion(telefono);
+  const sesion = await obtenerSesion(telefono);
   const texto = textoRecibido.trim();
 
   if (sesion.completado) {
@@ -41,7 +41,7 @@ async function procesarEncabezado(telefono, sesion, texto) {
   }
 
   sesion.paso++;
-  guardarSesion(telefono, sesion);
+  await guardarSesion(telefono, sesion);
 
   if (sesion.paso < ENCABEZADO.length) {
     const siguiente = ENCABEZADO[sesion.paso];
@@ -50,7 +50,7 @@ async function procesarEncabezado(telefono, sesion, texto) {
   } else {
     sesion.etapa = "preguntas";
     sesion.paso = 0;
-    guardarSesion(telefono, sesion);
+    await guardarSesion(telefono, sesion);
 
     await enviarMensaje(
       telefono,
@@ -80,13 +80,13 @@ async function procesarPregunta(telefono, sesion, texto) {
   });
 
   sesion.paso++;
-  guardarSesion(telefono, sesion);
+  await guardarSesion(telefono, sesion);
 
   if (sesion.paso < PREGUNTAS.length) {
     await enviarMensaje(telefono, PREGUNTAS[sesion.paso].texto);
   } else {
     sesion.completado = true;
-    guardarSesion(telefono, sesion);
+    await guardarSesion(telefono, sesion);
     await guardarRespuesta(telefono, sesion);
     await enviarMensaje(
       telefono,
