@@ -152,7 +152,7 @@ async function procesarPregunta(telefono, sesion, texto) {
     await guardarRespuesta(telefono, sesion);
     await enviarMensaje(
       telefono,
-      `✅ *¡Encuesta completada!*\n\nMuchas gracias, ${sesion.datos.nombre}. Hemos registrado sus respuestas exitosamente.\n\nSu opinión es muy valiosa para apoyar la modernización tecnológica de las empresas en Bucaramanga.\n\n¡Que tenga un excelente día!`
+      `✅ ¡Encuesta completada!\n\nMuchas gracias, ${sesion.datos.empresa}. Hemos registrado sus respuestas exitosamente.\n\n*En un momento mostraremos los resultados consolidados en la presentación*.`
     );
   }
 }

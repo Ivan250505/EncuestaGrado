@@ -65,15 +65,14 @@ async function convertirACSV() {
   const cabecera = [
     "Telefono", "Fecha", "Nombre", "Empresa",
     "P1_Sector", "P2_Empleados", "P3_SistemaActual", "P4_AccesoRemoto",
-    "P5_GastoLicencias", "P6_BuscoServicio", "P7_FormaPago",
-    "P8_IA", "P9_Fabricas",
+    "P5_GastoLicencias", "P6_BuscoServicio", "P7_IA", "P8_Fabricas",
   ].join(",");
 
   const filas = datos.map((r) => {
-    const cols = Array.from({ length: 9 }, (_, i) => {
+    // Solo P1 a P8 en el CSV — P9 (texto abierto) se excluye del dashboard
+    const cols = Array.from({ length: 8 }, (_, i) => {
       const p = r.respuestas.find((x) => x.numero === i + 1);
       if (!p) return "";
-      // P2 y P10: texto libre — P10 se omite del CSV (pregunta abierta)
       if (p.respuesta_texto !== null) return `"${p.respuesta_texto}"`;
       return p.respuesta_numerica ?? "";
     });
