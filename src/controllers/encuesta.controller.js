@@ -8,7 +8,15 @@ async function procesarMensaje(telefono, textoRecibido) {
   const texto = textoRecibido.trim();
 
   if (sesion.completado) {
-    await enviarMensaje(telefono, "Usted ya completó la encuesta anteriormente. Le agradecemos su valiosa participación.");
+    const sesionNueva = {
+      etapa: "bienvenida",
+      paso: 0,
+      datos: {},
+      respuestas: [],
+      completado: false,
+    };
+    await guardarSesion(telefono, sesionNueva);
+    await enviarMensaje(telefono, MENSAJE_BIENVENIDA);
     return;
   }
 
