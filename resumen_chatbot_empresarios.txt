@@ -1,0 +1,73 @@
+================================================================
+     RESUMEN GENERAL: CÓMO SE CREA UN CHATBOT DE WHATSAPP
+     (Para diagrama de flujo - explicación a empresarios)
+================================================================
+
+PASO 1 — CREAR CUENTA EN META (Facebook Developers)
+----------------------------------------------------
+- Entrar a la plataforma de desarrolladores de Meta (Facebook).
+- Crear una "App" de tipo negocio.
+- Dentro de la app, activar el producto de WhatsApp.
+- Esto nos da acceso oficial para enviar y recibir mensajes
+  a través de WhatsApp de forma automatizada.
+
+PASO 2 — OBTENER LOS TOKENS Y NÚMEROS DE ACCESO
+-------------------------------------------------
+- Meta genera un TOKEN (clave secreta) que le da permiso
+  al sistema de hablar con WhatsApp.
+- Se configura un número de teléfono oficial de WhatsApp
+  vinculado a la empresa.
+- También se obtiene un ID de la app y un número verificador
+  para confirmar que el servidor es legítimo.
+- Estos tokens son como las "llaves" que abren la comunicación.
+
+PASO 3 — PROGRAMAR EL CHATBOT
+------------------------------
+- Se escribe el código del chatbot (la lógica de conversación).
+- El bot recibe los mensajes del cliente, los procesa
+  y responde de forma automática.
+- Se programan los flujos: bienvenida, preguntas frecuentes,
+  encuestas, derivación a humano, etc.
+- Todo esto queda guardado en archivos de código (el "cerebro" del bot).
+
+PASO 4 — SUBIR EL BOT A RENDER (Servidor en la nube)
+------------------------------------------------------
+- El código necesita vivir en un servidor para estar
+  disponible las 24 horas.
+- Se usa Render, una plataforma en la nube donde se sube el bot.
+- Render le asigna una dirección web (URL) al bot.
+- Esa URL se conecta con Meta para que WhatsApp sepa
+  a dónde enviar los mensajes entrantes.
+- Cada vez que alguien escribe al número, Meta llama
+  a esa URL y el bot responde.
+
+PASO 5 — CONECTAR TODO CON META (Webhook)
+------------------------------------------
+- Se registra la URL del servidor en la configuración de Meta.
+- Meta verifica que el servidor responde correctamente.
+- A partir de ese momento, los mensajes de WhatsApp
+  llegan al bot en tiempo real.
+
+PASO 6 — BASE DE DATOS (Guardar la información)
+-------------------------------------------------
+- Cada respuesta del cliente se guarda en una base de datos.
+- Se registran: nombre, respuestas a la encuesta, fecha, etc.
+- Esto permite tener un historial de todas las interacciones.
+
+PASO 7 — DASHBOARD (Panel de control para el empresario)
+---------------------------------------------------------
+- Se crea una página web privada (el Dashboard).
+- El empresario puede entrar y ver en tiempo real:
+    * Cuántas personas han respondido la encuesta.
+    * Qué respondió cada cliente.
+    * Gráficas y estadísticas de los resultados.
+    * Exportar la información si es necesario.
+- Es la interfaz visual para entender los datos sin
+  necesidad de saber programación.
+
+================================================================
+RESUMEN EN UNA LÍNEA:
+Meta nos da permiso → programamos el bot → lo subimos a la nube
+→ WhatsApp envía mensajes al bot → el bot responde y guarda datos
+→ el empresario ve todo en el Dashboard.
+================================================================

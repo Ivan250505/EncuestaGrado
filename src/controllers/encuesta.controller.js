@@ -152,7 +152,7 @@ async function procesarPregunta(telefono, sesion, texto) {
     await guardarRespuesta(telefono, sesion);
     await enviarMensaje(
       telefono,
-      `✅ ¡Encuesta completada!\n\nMuchas gracias, ${sesion.datos.empresa}. Hemos registrado sus respuestas exitosamente.\n\n*En un momento mostraremos los resultados consolidados en la presentación*.`
+      `✅ ¡Encuesta completada!\n\nMuchas gracias, ${sesion.datos.empresa}. Hemos registrado sus respuestas exitosamente.\n\n*En un momento mostraremos los resultados consolidados en la presentación*.\n\n📊 También puede ver el dashboard en tiempo real aquí:\nhttps://dashboardfabricas.onrender.com/dashboard`
     );
   }
 }
